@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors');
 require('dotenv').config()
 const { MongoClient } = require('mongodb');
+const ObjectId = require("mongodb").ObjectId;
 
 
 const app = express()
@@ -22,14 +23,27 @@ async function run() {
     try {
         await client.connect();
 
+        // places
         const database = client.db("toursim");
         const placesCollections = database.collection("places")
+
+        // Bid plaes
+        const database2 = client.db("tourism")
+        const biddingPlaces = database2.collection("bidConfirm")
 
         // Get Api
         app.get('/places', async (req, res) => {
             const cursor = placesCollections.find({});
             const places = await cursor.toArray();
             res.send(places);
+        })
+
+        // Get Api
+
+        app.get('/choosedPlace/:id', async (req, res) => {
+            console.log(req.params.id)
+            const result = await placesCollections.find({ _id: ObjectId(req.params.id) }).toArray();
+            res.send(result[0]);
         })
 
         // Post Api
@@ -39,6 +53,13 @@ async function run() {
 
             const result = await placesCollections.insertOne(place);
             res.json(result);
+        })
+
+        // BidConfirm
+        app.post('/bidConfirm', async (req, res) => {
+            const bid = req.body;
+            const result = await biddingPlaces.insertOne(bid)
+            res.send(result);
         })
     }
     finally {
