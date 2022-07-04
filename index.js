@@ -61,6 +61,22 @@ async function run() {
             const result = await biddingPlaces.insertOne(bid)
             res.send(result);
         })
+
+        // All orders
+        app.get('/bidConfirm', async (req, res) => {
+            const cursor = biddingPlaces.find({});
+            const result = await cursor.toArray();
+            res.json(result)
+        })
+
+        // Delete Orders
+
+        app.delete('/bidConfirm/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await biddingPlaces.deleteOne(query);
+            res.json(result)
+        })
     }
     finally {
         // await client.close();
